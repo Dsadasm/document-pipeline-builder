@@ -2,6 +2,10 @@
 @baseUrl = http://localhost:3000
 @apiPath = /api/pipelines
 
+### Get all node types
+GET http://localhost:3000/api/nodeType
+Content-Type: application/json
+
 ### Create a valid pipeline
 POST {{baseUrl}}{{apiPath}}
 Content-Type: application/json

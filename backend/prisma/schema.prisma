@@ -48,17 +48,6 @@ model Edge {
   @@unique([pipelineId, fromNodeId, toNodeId])
 }
 
-// enum NodeType {
-//   FILE_UPLOAD
-//   OCR
-//   SUMMARIZE
-//   EMAIL
-//   IMAGE_RESIZE
-//   DOCUMENT_MERGER
-//   HUMAN_REVIEW
-//   TEXT_CORRECTION
-// }
-
 // NodeType model - predefined node types with their capabilities
 model NodeType {
   name               String  @id @unique @db.VarChar(100)
