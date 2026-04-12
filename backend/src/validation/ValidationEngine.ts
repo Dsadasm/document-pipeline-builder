@@ -1,5 +1,5 @@
 type Node = {
-    name: string;
+    id: string,
     type: string;
     positionX?: number;
     positionY?: number;
@@ -9,8 +9,8 @@ type Node = {
 type Edge = {
     id?: string;
     pipelineId?: string;
-    fromNodeName: string;
-    toNodeName: string;
+    fromNodeId: string;
+    toNodeId: string;
 }
 
 type NodeType = {
@@ -29,7 +29,7 @@ export class ValidationEngine {
 
     private buildNodeMap(nodes: Node[]) {
         const map = new Map<string, Node>();
-        for (const n of nodes) map.set(n.name, n);
+        for (const n of nodes) map.set(n.id, n);
         return map;
     }
 
@@ -54,10 +54,10 @@ export class ValidationEngine {
         const typeMap = this.buildNodeTypeMap(nodeTypes);
 
         for (const e of edges) {
-            const from = nodeMap.get(e.fromNodeName);
-            const to = nodeMap.get(e.toNodeName);
-            if (!from) { errors.push(`Edge ${e.id ?? ''} references missing from-node ${e.fromNodeName}`); continue; }
-            if (!to) { errors.push(`Edge ${e.id ?? ''} references missing to-node ${e.toNodeName}`); continue; }
+            const from = nodeMap.get(e.fromNodeId);
+            const to = nodeMap.get(e.toNodeId);
+            if (!from) { errors.push(`Edge ${e.id ?? ''} references missing from-node ${e.fromNodeId}`); continue; }
+            if (!to) { errors.push(`Edge ${e.id ?? ''} references missing to-node ${e.toNodeId}`); continue; }
 
             const fromType = typeMap.get(from.type);
             const toType = typeMap.get(to.type);
@@ -66,14 +66,14 @@ export class ValidationEngine {
             const toInput = toType?.inputDataType ?? 'UNKNOWN';
 
             if (fromOutput === 'UNKNOWN' || toInput === 'UNKNOWN') {
-                errors.push(`Cannot determine data types for edge from ${from.name} (${from.type}) to ${to.name} (${to.type}).`);
+                errors.push(`Cannot determine data types for edge from ${from.id} (${from.type}) to ${to.id} (${to.type}).`);
                 continue;
             }
 
             if (toInput === '*' || toInput.toLowerCase() === 'any') continue;
 
             if (fromOutput !== toInput) {
-                errors.push(`Type mismatch on edge from ${from.name} (${from.type} -> ${fromOutput}) to ${to.name} (${to.type} expects ${toInput}).`);
+                errors.push(`Type mismatch on edge from ${from.id} (${from.type} -> ${fromOutput}) to ${to.id} (${to.type} expects ${toInput}).`);
             }
         }
 
@@ -94,13 +94,13 @@ export class ValidationEngine {
 
         for (const n of nodes) {
             if (!isMerger(n)) continue;
-            const incoming = edges.filter(e => e.toNodeName === n.name);
+            const incoming = edges.filter(e => e.toNodeId === n.id);
             if (incoming.length !== 2) {
-                errors.push(`Document Merger node ${n.name} must have exactly two incoming connections, found ${incoming.length}.`);
+                errors.push(`Document Merger node ${n.id} must have exactly two incoming connections, found ${incoming.length}.`);
                 continue;
             }
-            if (incoming[0].fromNodeName === incoming[1].fromNodeName) {
-                errors.push(`Document Merger node ${n.name} has two incoming connections from the same parent ${incoming[0].fromNodeName}.`);
+            if (incoming[0].fromNodeId === incoming[1].fromNodeId) {
+                errors.push(`Document Merger node ${n.id} has two incoming connections from the same parent ${incoming[0].fromNodeId}.`);
             }
         }
 
@@ -115,15 +115,15 @@ export class ValidationEngine {
         const typeMap = this.buildNodeTypeMap(nodeTypes);
 
         const adj = new Map<string, string[]>();
-        for (const n of nodes) adj.set(n.name, []);
+        for (const n of nodes) adj.set(n.id, []);
         for (const e of edges) {
-            if (!adj.has(e.fromNodeName)) adj.set(e.fromNodeName, []);
-            adj.get(e.fromNodeName)!.push(e.toNodeName);
+            if (!adj.has(e.fromNodeId)) adj.set(e.fromNodeId, []);
+            adj.get(e.fromNodeId)!.push(e.toNodeId);
         }
 
         const indegree = new Map<string, number>();
-        for (const n of nodes) indegree.set(n.name, 0);
-        for (const e of edges) indegree.set(e.toNodeName, (indegree.get(e.toNodeName) ?? 0) + 1);
+        for (const n of nodes) indegree.set(n.id, 0);
+        for (const e of edges) indegree.set(e.toNodeId, (indegree.get(e.toNodeId) ?? 0) + 1);
         const sources = new Set<string>();
         for (const [id, v] of indegree.entries()) if (v === 0) sources.add(id);
 
@@ -150,7 +150,7 @@ export class ValidationEngine {
             onStack.delete(u);
         };
 
-        for (const n of nodes) if (!visited.has(n.name)) dfs(n.name);
+        for (const n of nodes) if (!visited.has(n.id)) dfs(n.id);
 
         for (const c of cycles) {
             const includesSource = c.cycle.some(id => sources.has(id));

@@ -14,58 +14,33 @@ router.post('/', async (req, res) => {
         }
 
         const nodeTypes = await prisma.nodeType.findMany();
+        for (const n of nodes) {
+            // Check if node type exists in nodeTypes            
+            const typeExists = nodeTypes.some(nt => nt.name === n.type);
+            if (!typeExists) {
+                return res.status(400).json({ error: `Node type ${n.type} not found for node ${n.id}` });
+            }
+        }
 
         const validation = ValidationEngine.validatePipeline(nodes, edges, nodeTypes);
         if (!validation.valid) {
             return res.status(400).json({ errors: validation.errors });
         }
 
-        // Create a map for node names to their database IDs (after creation)
-        let nodeNameToIdMap = new Map();
-
-        if (id) {
+        if (id && id !== '') {
             const existing = await prisma.pipeline.findUnique({ where: { id } });
             if (!existing) {
                 return res.status(400).json({ message: 'Pipeline not found', id: id })
             }
 
             const pipelineId = id;
-            
-            // Delete existing nodes and edges
             await prisma.$transaction([
                 prisma.edge.deleteMany({ where: { pipelineId } }),
                 prisma.node.deleteMany({ where: { pipelineId } }),
-                prisma.pipeline.update({ where: { id: pipelineId }, data: { name } })
+                prisma.pipeline.update({ where: { id: pipelineId }, data: { name } }),
+                prisma.node.createMany({ data: nodes.map((n: any) => ({ id: n.id, pipelineId, type: n.type, positionX: n.positionX ?? 0, positionY: n.positionY ?? 0 })) }),
+                prisma.edge.createMany({ data: edges.map((e: any) => ({ pipelineId, fromNodeId: e.fromNodeId, toNodeId: e.toNodeId })) })
             ]);
-
-            // Create nodes and capture their IDs
-            const createdNodes = await Promise.all(
-                nodes.map((n: any) => 
-                    prisma.node.create({
-                        data: {
-                            name: n.name,
-                            pipelineId,
-                            type: n.type,
-                            positionX: n.positionX ?? 0,
-                            positionY: n.positionY ?? 0
-                        }
-                    })
-                )
-            );
-
-            // Build name to ID mapping
-            createdNodes.forEach(node => {
-                nodeNameToIdMap.set(node.name, node.id);
-            });
-
-            // Create edges using the mapped IDs
-            await prisma.edge.createMany({
-                data: edges.map((e: any) => ({
-                    pipelineId,
-                    fromNodeId: nodeNameToIdMap.get(e.fromNodeName),
-                    toNodeId: nodeNameToIdMap.get(e.toNodeName)
-                }))
-            });
 
             return res.json({ message: 'Pipeline updated', id: pipelineId });
         }
@@ -74,34 +49,10 @@ router.post('/', async (req, res) => {
         const pipeline = await prisma.pipeline.create({ data: { name } });
         const pipelineId = pipeline.id;
 
-        // Create nodes and capture their IDs
-        const createdNodes = await Promise.all(
-            nodes.map((n: any) => 
-                prisma.node.create({
-                    data: {
-                        name: n.name,
-                        pipelineId,
-                        type: n.type,
-                        positionX: n.positionX ?? 0,
-                        positionY: n.positionY ?? 0
-                    }
-                })
-            )
-        );
-
-        // Build name to ID mapping
-        createdNodes.forEach(node => {
-            nodeNameToIdMap.set(node.name, node.id);
-        });
-
-        // Create edges using the mapped IDs
-        await prisma.edge.createMany({
-            data: edges.map((e: any) => ({
-                pipelineId,
-                fromNodeId: nodeNameToIdMap.get(e.fromNodeName),
-                toNodeId: nodeNameToIdMap.get(e.toNodeName)
-            }))
-        });
+        await prisma.$transaction([
+            prisma.node.createMany({ data: nodes.map((n: any) => ({ id: n.id, pipelineId, type: n.type, positionX: n.positionX ?? 0, positionY: n.positionY ?? 0 })) }),
+            prisma.edge.createMany({ data: edges.map((e: any) => ({ pipelineId, fromNodeId: e.fromNodeId, toNodeId: e.toNodeId })) })
+        ]);
 
         return res.status(201).json({ message: 'Pipeline created', id: pipelineId });
     } catch (error) {
@@ -127,7 +78,6 @@ router.get('/:id', async (req, res) => {
             name: pipeline.name,
             nodes: pipeline.nodes.map(n => ({
                 id: n.id,
-                name: n.name,
                 type: n.type,
                 position: { x: n.positionX, y: n.positionY }
             })),

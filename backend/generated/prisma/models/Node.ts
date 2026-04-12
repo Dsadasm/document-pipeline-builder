@@ -39,7 +39,6 @@ export type NodeSumAggregateOutputType = {
 export type NodeMinAggregateOutputType = {
   id: string | null
   pipelineId: string | null
-  name: string | null
   type: string | null
   positionX: number | null
   positionY: number | null
@@ -48,7 +47,6 @@ export type NodeMinAggregateOutputType = {
 export type NodeMaxAggregateOutputType = {
   id: string | null
   pipelineId: string | null
-  name: string | null
   type: string | null
   positionX: number | null
   positionY: number | null
@@ -57,7 +55,6 @@ export type NodeMaxAggregateOutputType = {
 export type NodeCountAggregateOutputType = {
   id: number
   pipelineId: number
-  name: number
   type: number
   positionX: number
   positionY: number
@@ -78,7 +75,6 @@ export type NodeSumAggregateInputType = {
 export type NodeMinAggregateInputType = {
   id?: true
   pipelineId?: true
-  name?: true
   type?: true
   positionX?: true
   positionY?: true
@@ -87,7 +83,6 @@ export type NodeMinAggregateInputType = {
 export type NodeMaxAggregateInputType = {
   id?: true
   pipelineId?: true
-  name?: true
   type?: true
   positionX?: true
   positionY?: true
@@ -96,7 +91,6 @@ export type NodeMaxAggregateInputType = {
 export type NodeCountAggregateInputType = {
   id?: true
   pipelineId?: true
-  name?: true
   type?: true
   positionX?: true
   positionY?: true
@@ -192,7 +186,6 @@ export type NodeGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type NodeGroupByOutputType = {
   id: string
   pipelineId: string
-  name: string
   type: string
   positionX: number
   positionY: number
@@ -224,7 +217,6 @@ export type NodeWhereInput = {
   NOT?: Prisma.NodeWhereInput | Prisma.NodeWhereInput[]
   id?: Prisma.StringFilter<"Node"> | string
   pipelineId?: Prisma.StringFilter<"Node"> | string
-  name?: Prisma.StringFilter<"Node"> | string
   type?: Prisma.StringFilter<"Node"> | string
   positionX?: Prisma.FloatFilter<"Node"> | number
   positionY?: Prisma.FloatFilter<"Node"> | number
@@ -237,7 +229,6 @@ export type NodeWhereInput = {
 export type NodeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   pipelineId?: Prisma.SortOrder
-  name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   positionX?: Prisma.SortOrder
   positionY?: Prisma.SortOrder
@@ -249,12 +240,10 @@ export type NodeOrderByWithRelationInput = {
 
 export type NodeWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  pipelineId_name?: Prisma.NodePipelineIdNameCompoundUniqueInput
   AND?: Prisma.NodeWhereInput | Prisma.NodeWhereInput[]
   OR?: Prisma.NodeWhereInput[]
   NOT?: Prisma.NodeWhereInput | Prisma.NodeWhereInput[]
   pipelineId?: Prisma.StringFilter<"Node"> | string
-  name?: Prisma.StringFilter<"Node"> | string
   type?: Prisma.StringFilter<"Node"> | string
   positionX?: Prisma.FloatFilter<"Node"> | number
   positionY?: Prisma.FloatFilter<"Node"> | number
@@ -262,12 +251,11 @@ export type NodeWhereUniqueInput = Prisma.AtLeast<{
   nodeType?: Prisma.XOR<Prisma.NodeTypeScalarRelationFilter, Prisma.NodeTypeWhereInput>
   edgesFrom?: Prisma.EdgeListRelationFilter
   edgesTo?: Prisma.EdgeListRelationFilter
-}, "id" | "pipelineId_name">
+}, "id">
 
 export type NodeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   pipelineId?: Prisma.SortOrder
-  name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   positionX?: Prisma.SortOrder
   positionY?: Prisma.SortOrder
@@ -284,7 +272,6 @@ export type NodeScalarWhereWithAggregatesInput = {
   NOT?: Prisma.NodeScalarWhereWithAggregatesInput | Prisma.NodeScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Node"> | string
   pipelineId?: Prisma.StringWithAggregatesFilter<"Node"> | string
-  name?: Prisma.StringWithAggregatesFilter<"Node"> | string
   type?: Prisma.StringWithAggregatesFilter<"Node"> | string
   positionX?: Prisma.FloatWithAggregatesFilter<"Node"> | number
   positionY?: Prisma.FloatWithAggregatesFilter<"Node"> | number
@@ -292,7 +279,6 @@ export type NodeScalarWhereWithAggregatesInput = {
 
 export type NodeCreateInput = {
   id?: string
-  name: string
   positionX: number
   positionY: number
   pipeline: Prisma.PipelineCreateNestedOneWithoutNodesInput
@@ -304,7 +290,6 @@ export type NodeCreateInput = {
 export type NodeUncheckedCreateInput = {
   id?: string
   pipelineId: string
-  name: string
   type: string
   positionX: number
   positionY: number
@@ -314,7 +299,6 @@ export type NodeUncheckedCreateInput = {
 
 export type NodeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
   pipeline?: Prisma.PipelineUpdateOneRequiredWithoutNodesNestedInput
@@ -326,7 +310,6 @@ export type NodeUpdateInput = {
 export type NodeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   pipelineId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -337,7 +320,6 @@ export type NodeUncheckedUpdateInput = {
 export type NodeCreateManyInput = {
   id?: string
   pipelineId: string
-  name: string
   type: string
   positionX: number
   positionY: number
@@ -345,7 +327,6 @@ export type NodeCreateManyInput = {
 
 export type NodeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
 }
@@ -353,7 +334,6 @@ export type NodeUpdateManyMutationInput = {
 export type NodeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   pipelineId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -369,15 +349,9 @@ export type NodeOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type NodePipelineIdNameCompoundUniqueInput = {
-  pipelineId: string
-  name: string
-}
-
 export type NodeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   pipelineId?: Prisma.SortOrder
-  name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   positionX?: Prisma.SortOrder
   positionY?: Prisma.SortOrder
@@ -391,7 +365,6 @@ export type NodeAvgOrderByAggregateInput = {
 export type NodeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   pipelineId?: Prisma.SortOrder
-  name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   positionX?: Prisma.SortOrder
   positionY?: Prisma.SortOrder
@@ -400,7 +373,6 @@ export type NodeMaxOrderByAggregateInput = {
 export type NodeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   pipelineId?: Prisma.SortOrder
-  name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   positionX?: Prisma.SortOrder
   positionY?: Prisma.SortOrder
@@ -538,7 +510,6 @@ export type NodeUncheckedUpdateManyWithoutNodeTypeNestedInput = {
 
 export type NodeCreateWithoutPipelineInput = {
   id?: string
-  name: string
   positionX: number
   positionY: number
   nodeType: Prisma.NodeTypeCreateNestedOneWithoutNodesInput
@@ -548,7 +519,6 @@ export type NodeCreateWithoutPipelineInput = {
 
 export type NodeUncheckedCreateWithoutPipelineInput = {
   id?: string
-  name: string
   type: string
   positionX: number
   positionY: number
@@ -588,7 +558,6 @@ export type NodeScalarWhereInput = {
   NOT?: Prisma.NodeScalarWhereInput | Prisma.NodeScalarWhereInput[]
   id?: Prisma.StringFilter<"Node"> | string
   pipelineId?: Prisma.StringFilter<"Node"> | string
-  name?: Prisma.StringFilter<"Node"> | string
   type?: Prisma.StringFilter<"Node"> | string
   positionX?: Prisma.FloatFilter<"Node"> | number
   positionY?: Prisma.FloatFilter<"Node"> | number
@@ -596,7 +565,6 @@ export type NodeScalarWhereInput = {
 
 export type NodeCreateWithoutEdgesFromInput = {
   id?: string
-  name: string
   positionX: number
   positionY: number
   pipeline: Prisma.PipelineCreateNestedOneWithoutNodesInput
@@ -607,7 +575,6 @@ export type NodeCreateWithoutEdgesFromInput = {
 export type NodeUncheckedCreateWithoutEdgesFromInput = {
   id?: string
   pipelineId: string
-  name: string
   type: string
   positionX: number
   positionY: number
@@ -621,7 +588,6 @@ export type NodeCreateOrConnectWithoutEdgesFromInput = {
 
 export type NodeCreateWithoutEdgesToInput = {
   id?: string
-  name: string
   positionX: number
   positionY: number
   pipeline: Prisma.PipelineCreateNestedOneWithoutNodesInput
@@ -632,7 +598,6 @@ export type NodeCreateWithoutEdgesToInput = {
 export type NodeUncheckedCreateWithoutEdgesToInput = {
   id?: string
   pipelineId: string
-  name: string
   type: string
   positionX: number
   positionY: number
@@ -657,7 +622,6 @@ export type NodeUpdateToOneWithWhereWithoutEdgesFromInput = {
 
 export type NodeUpdateWithoutEdgesFromInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
   pipeline?: Prisma.PipelineUpdateOneRequiredWithoutNodesNestedInput
@@ -668,7 +632,6 @@ export type NodeUpdateWithoutEdgesFromInput = {
 export type NodeUncheckedUpdateWithoutEdgesFromInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   pipelineId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -688,7 +651,6 @@ export type NodeUpdateToOneWithWhereWithoutEdgesToInput = {
 
 export type NodeUpdateWithoutEdgesToInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
   pipeline?: Prisma.PipelineUpdateOneRequiredWithoutNodesNestedInput
@@ -699,7 +661,6 @@ export type NodeUpdateWithoutEdgesToInput = {
 export type NodeUncheckedUpdateWithoutEdgesToInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   pipelineId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -708,7 +669,6 @@ export type NodeUncheckedUpdateWithoutEdgesToInput = {
 
 export type NodeCreateWithoutNodeTypeInput = {
   id?: string
-  name: string
   positionX: number
   positionY: number
   pipeline: Prisma.PipelineCreateNestedOneWithoutNodesInput
@@ -719,7 +679,6 @@ export type NodeCreateWithoutNodeTypeInput = {
 export type NodeUncheckedCreateWithoutNodeTypeInput = {
   id?: string
   pipelineId: string
-  name: string
   positionX: number
   positionY: number
   edgesFrom?: Prisma.EdgeUncheckedCreateNestedManyWithoutFromNodeInput
@@ -754,7 +713,6 @@ export type NodeUpdateManyWithWhereWithoutNodeTypeInput = {
 
 export type NodeCreateManyPipelineInput = {
   id?: string
-  name: string
   type: string
   positionX: number
   positionY: number
@@ -762,7 +720,6 @@ export type NodeCreateManyPipelineInput = {
 
 export type NodeUpdateWithoutPipelineInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
   nodeType?: Prisma.NodeTypeUpdateOneRequiredWithoutNodesNestedInput
@@ -772,7 +729,6 @@ export type NodeUpdateWithoutPipelineInput = {
 
 export type NodeUncheckedUpdateWithoutPipelineInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -782,7 +738,6 @@ export type NodeUncheckedUpdateWithoutPipelineInput = {
 
 export type NodeUncheckedUpdateManyWithoutPipelineInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -791,14 +746,12 @@ export type NodeUncheckedUpdateManyWithoutPipelineInput = {
 export type NodeCreateManyNodeTypeInput = {
   id?: string
   pipelineId: string
-  name: string
   positionX: number
   positionY: number
 }
 
 export type NodeUpdateWithoutNodeTypeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
   pipeline?: Prisma.PipelineUpdateOneRequiredWithoutNodesNestedInput
@@ -809,7 +762,6 @@ export type NodeUpdateWithoutNodeTypeInput = {
 export type NodeUncheckedUpdateWithoutNodeTypeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   pipelineId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
   edgesFrom?: Prisma.EdgeUncheckedUpdateManyWithoutFromNodeNestedInput
@@ -819,7 +771,6 @@ export type NodeUncheckedUpdateWithoutNodeTypeInput = {
 export type NodeUncheckedUpdateManyWithoutNodeTypeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   pipelineId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   positionX?: Prisma.FloatFieldUpdateOperationsInput | number
   positionY?: Prisma.FloatFieldUpdateOperationsInput | number
 }
@@ -867,7 +818,6 @@ export type NodeCountOutputTypeCountEdgesToArgs<ExtArgs extends runtime.Types.Ex
 export type NodeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   pipelineId?: boolean
-  name?: boolean
   type?: boolean
   positionX?: boolean
   positionY?: boolean
@@ -881,7 +831,6 @@ export type NodeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type NodeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   pipelineId?: boolean
-  name?: boolean
   type?: boolean
   positionX?: boolean
   positionY?: boolean
@@ -892,7 +841,6 @@ export type NodeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type NodeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   pipelineId?: boolean
-  name?: boolean
   type?: boolean
   positionX?: boolean
   positionY?: boolean
@@ -903,13 +851,12 @@ export type NodeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type NodeSelectScalar = {
   id?: boolean
   pipelineId?: boolean
-  name?: boolean
   type?: boolean
   positionX?: boolean
   positionY?: boolean
 }
 
-export type NodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "pipelineId" | "name" | "type" | "positionX" | "positionY", ExtArgs["result"]["node"]>
+export type NodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "pipelineId" | "type" | "positionX" | "positionY", ExtArgs["result"]["node"]>
 export type NodeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pipeline?: boolean | Prisma.PipelineDefaultArgs<ExtArgs>
   nodeType?: boolean | Prisma.NodeTypeDefaultArgs<ExtArgs>
@@ -937,7 +884,6 @@ export type $NodePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     pipelineId: string
-    name: string
     type: string
     positionX: number
     positionY: number
@@ -1370,7 +1316,6 @@ export interface Prisma__NodeClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface NodeFieldRefs {
   readonly id: Prisma.FieldRef<"Node", 'String'>
   readonly pipelineId: Prisma.FieldRef<"Node", 'String'>
-  readonly name: Prisma.FieldRef<"Node", 'String'>
   readonly type: Prisma.FieldRef<"Node", 'String'>
   readonly positionX: Prisma.FieldRef<"Node", 'Float'>
   readonly positionY: Prisma.FieldRef<"Node", 'Float'>

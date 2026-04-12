@@ -755,7 +755,6 @@ export type PipelineScalarFieldEnum = (typeof PipelineScalarFieldEnum)[keyof typ
 export const NodeScalarFieldEnum = {
   id: 'id',
   pipelineId: 'pipelineId',
-  name: 'name',
   type: 'type',
   positionX: 'positionX',
   positionY: 'positionY'

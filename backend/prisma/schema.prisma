@@ -25,15 +25,12 @@ model Node {
   id         String   @id @default(cuid())
   pipelineId String
   pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
-  name       String
   type       String
   nodeType   NodeType @relation(fields: [type], references: [name])
   positionX  Float
   positionY  Float
   edgesFrom  Edge[]   @relation("FromNode")
   edgesTo    Edge[]   @relation("ToNode")
-
-  @@unique([pipelineId, name])
 }
 
 model Edge {

@@ -11,7 +11,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/pipelines', pipelineRoutes);
-app.use('/api/nodeType', nodeTypeRoutes);
+app.use('/api/nodeTypes', nodeTypeRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
