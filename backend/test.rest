@@ -1,0 +1,93 @@
+### Variables
+@baseUrl = http://localhost:3000
+@apiPath = /api/pipelines
+
+### Create a valid pipeline
+POST {{baseUrl}}{{apiPath}}
+Content-Type: application/json
+
+{
+    "name": "Test Pipeline 1",
+    "nodes": [
+        {
+            "name": "node-1",
+            "type": "file_upload",
+            "positionX": 100,
+            "positionY": 100
+        },
+        {
+            "name": "node-2",
+            "type": "ocr",
+            "positionX": 300,
+            "positionY": 100
+        },
+        {
+            "name": "node-3",
+            "type": "email",
+            "positionX": 500,
+            "positionY": 100
+        }
+    ],
+    "edges": [
+        {
+            "fromNodeName": "node-1",
+            "toNodeName": "node-2"
+        },
+        {
+            "fromNodeName": "node-2",
+            "toNodeName": "node-3"
+        }
+    ]
+}
+
+### First, save the ID from creation (manually copy the ID from response)
+POST {{baseUrl}}{{apiPath}}
+Content-Type: application/json
+
+{
+    "name": "Pipeline To Update",
+    "nodes": [
+        {"name": "update-node-1", "type": "file_upload", "positionX": 0, "positionY": 0}
+    ],
+    "edges": []
+}
+
+### Update existing pipeline (replace {{updateId}} with actual ID)
+POST {{baseUrl}}{{apiPath}}
+Content-Type: application/json
+
+{
+    "id": "cmnvupuoa00062rflorukq8ot",
+    "name": "Updated Pipeline Name",
+    "nodes": [
+        {
+            "name": "updated-node-1",
+            "type": "file_upload",
+            "positionX": 50,
+            "positionY": 50
+        },
+        {
+            "name": "updated-node-2",
+            "type": "ocr",
+            "positionX": 250,
+            "positionY": 50
+        }
+    ],
+    "edges": [
+        {
+            "fromNodeName": "updated-node-1",
+            "toNodeName": "updated-node-2"
+        }
+    ]
+}
+
+### Get existing pipeline (replace {{pipelineId}})
+GET {{baseUrl}}{{apiPath}}/cmnvupuoa00062rflorukq8ot
+
+
+### Get all pipelines (list view)
+GET {{baseUrl}}{{apiPath}}
+
+### Delete pipeline
+DELETE {{baseUrl}}{{apiPath}}/cmnvu19om0000wgfli6tu0zfq
+
