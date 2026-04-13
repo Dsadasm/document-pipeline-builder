@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { getNodeTypes } from '../api/nodeTypes';
+import { getNodeTypes, type NodeType } from '../api/nodeTypes';
 import './Sidebar.css';
-import type { NodeType } from '../types';
 
 
 export default function Sidebar() {

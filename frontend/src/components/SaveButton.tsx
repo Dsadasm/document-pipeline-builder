@@ -1,22 +1,22 @@
 import { type Edge, type Node } from '@xyflow/react';
-import { savePipeline } from '../api/pipelines';
+import { savePipeline, type SavePipelineRequest } from '../api/pipelines';
 import './SaveButton.css';
 import { useState } from 'react';
-import type { SavePipelineRequest } from '../types';
 
 interface SaveButtonProps {
     nodes: Node[];
     edges: Edge[];
-    pipelineId?: string;
     pipelineName?: string;
+    onValidationError?: (errorNodeIds: string[], errorEdgeIds: string[]) => void;
 }
 
 export default function SaveButton({
     nodes,
     edges,
-    pipelineId = '',
-    pipelineName = 'Untitled Pipeline'
+    pipelineName = 'Untitled Pipeline',
+    onValidationError
 }: SaveButtonProps) {
+    const [pipelineId, setPipelineId] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
 
     const onClick = async () => {
@@ -33,6 +33,7 @@ export default function SaveButton({
 
             // Transform React Flow edges to API format
             const formattedEdges = edges.map(edge => ({
+                id: edge.id,
                 fromNodeId: edge.source,
                 toNodeId: edge.target,
             }));
@@ -45,14 +46,30 @@ export default function SaveButton({
             };
 
             const response = await savePipeline(requestData);
+            setPipelineId(response.id);
+
+            if (onValidationError) {
+                onValidationError([], []);
+            }
 
             console.log('Pipeline saved successfully:', response);
-            setIsLoading(false);
+        } catch (err: any) {
+            // Check if this is a validation error with the expected structure
+            if (err.response?.data?.errorNodeIds && err.response?.data?.errorEdgeIds) {
+                const { errors, errorNodeIds, errorEdgeIds } = err.response.data;
 
-        } catch (err) {
-            console.error('Failed to save pipeline:', err);
+                // Pass the error IDs to parent component via callback
+                if (onValidationError) {
+                    onValidationError(errorNodeIds, errorEdgeIds);
+                }
+
+                //alert(errors.join('\n'));
+            } else {
+                console.error('Failed to save pipeline:', err);
+                alert('Failed to save pipeline. Please try again.');
+            }
+        } finally {
             setIsLoading(false);
-            alert('Failed to save pipeline. Please try again.');
         }
     }
 

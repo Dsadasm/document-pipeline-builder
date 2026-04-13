@@ -9,7 +9,7 @@ const nodeTypesData: NodeType[] = [
     {
         name: 'file_upload',
         inputDataType: 'None',
-        outputDataType: 'Image/PDF',
+        outputDataType: 'Image/PDF/Text',
         allowedCycleTarget: null,
     },
     {
@@ -26,7 +26,7 @@ const nodeTypesData: NodeType[] = [
     },
     {
         name: 'document_merger',
-        inputDataType: 'None', // Special handling - takes 2 inputs
+        inputDataType: 'Image/PDF/Text',
         outputDataType: 'Text',
         allowedCycleTarget: null,
     },
@@ -40,7 +40,7 @@ const nodeTypesData: NodeType[] = [
         name: 'text_correction',
         inputDataType: 'Text',
         outputDataType: 'Text',
-        allowedCycleTarget: null,
+        allowedCycleTarget: 'human_review',
     },
     {
         name: 'image_resize',

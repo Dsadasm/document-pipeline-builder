@@ -54,7 +54,7 @@ export default function FlowCanvas({ nodes, edges, setNodes, setEdges }: FlowCan
       });
 
       const newNode: Node = {
-        id: `node_${Date.now()}`,
+        id: crypto.randomUUID(),
         type: 'default',
         position,
         data: {

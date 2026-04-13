@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '@src/db/prisma.js'
 import ValidationEngine from '@src/validation/ValidationEngine.js'
+import { error } from 'node:console';
 
 const router = Router()
 
@@ -24,7 +25,11 @@ router.post('/', async (req, res) => {
 
         const validation = ValidationEngine.validatePipeline(nodes, edges, nodeTypes);
         if (!validation.valid) {
-            return res.status(400).json({ errors: validation.errors });
+            return res.status(400).json({
+                errors: validation.errors,
+                errorNodeIds: validation.errorNodes.map(n => n.id),
+                errorEdgeIds: validation.errorEdges.map(e => e.id)
+            });
         }
 
         if (id && id !== '') {
@@ -39,7 +44,7 @@ router.post('/', async (req, res) => {
                 prisma.node.deleteMany({ where: { pipelineId } }),
                 prisma.pipeline.update({ where: { id: pipelineId }, data: { name } }),
                 prisma.node.createMany({ data: nodes.map((n: any) => ({ id: n.id, pipelineId, type: n.type, positionX: n.positionX ?? 0, positionY: n.positionY ?? 0 })) }),
-                prisma.edge.createMany({ data: edges.map((e: any) => ({ pipelineId, fromNodeId: e.fromNodeId, toNodeId: e.toNodeId })) })
+                prisma.edge.createMany({ data: edges.map((e: any) => ({ id: e.id, pipelineId, fromNodeId: e.fromNodeId, toNodeId: e.toNodeId })) })
             ]);
 
             return res.json({ message: 'Pipeline updated', id: pipelineId });
@@ -51,7 +56,7 @@ router.post('/', async (req, res) => {
 
         await prisma.$transaction([
             prisma.node.createMany({ data: nodes.map((n: any) => ({ id: n.id, pipelineId, type: n.type, positionX: n.positionX ?? 0, positionY: n.positionY ?? 0 })) }),
-            prisma.edge.createMany({ data: edges.map((e: any) => ({ pipelineId, fromNodeId: e.fromNodeId, toNodeId: e.toNodeId })) })
+            prisma.edge.createMany({ data: edges.map((e: any) => ({ id: e.id, pipelineId, fromNodeId: e.fromNodeId, toNodeId: e.toNodeId })) })
         ]);
 
         return res.status(201).json({ message: 'Pipeline created', id: pipelineId });
