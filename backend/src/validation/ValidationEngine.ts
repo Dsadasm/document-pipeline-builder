@@ -100,9 +100,7 @@ export class ValidationEngine {
                 continue;
             }
 
-            const mergerRoots = this.getRoots(n, nodes, edges);
-
-            if (mergerRoots.length < 2) {
+            if (incoming[0].fromNodeId === incoming[1].fromNodeId) {
                 errors.push(`Document Merger node ${n.id} has two incoming connections from the same parent ${incoming[0].fromNodeId}.`);
                 errorNodes.push(n);
             }
@@ -251,46 +249,6 @@ export class ValidationEngine {
             }
         }
         return map;
-    }
-
-    private getRoots(startNode: Node, nodes: Node[], edges: Edge[]): string[] {
-        // Build adjacency map for reverse edges (to find parents)
-        const reverseAdjacency = new Map<string, string[]>();
-
-        // Initialize map for all nodes
-        nodes.forEach(node => {
-            reverseAdjacency.set(node.id, []);
-        });
-
-        // Build reverse edges: for each edge, add fromNodeId as parent of toNodeId
-        edges.forEach(edge => {
-            const parents = reverseAdjacency.get(edge.toNodeId) || [];
-            parents.push(edge.fromNodeId);
-            reverseAdjacency.set(edge.toNodeId, parents);
-        });
-
-        // Find all root nodes reachable from startNode
-        const visited = new Set<string>();
-        const roots = new Set<string>();
-
-        const dfs = (nodeId: string) => {
-            if (visited.has(nodeId)) return;
-            visited.add(nodeId);
-
-            const parents = reverseAdjacency.get(nodeId) || [];
-
-            if (parents.length === 0) {
-                // This node has no parents, it's a root
-                roots.add(nodeId);
-            } else {
-                // Continue searching up through parents
-                parents.forEach(parent => dfs(parent));
-            }
-        };
-
-        dfs(startNode.id);
-
-        return Array.from(roots);
     }
 }
 
