@@ -40,7 +40,7 @@ const nodeTypesData: NodeType[] = [
         name: 'text_correction',
         inputDataType: 'Text',
         outputDataType: 'Text',
-        allowedCycleTarget: 'human_review',
+        allowedCycleTarget: null,
     },
     {
         name: 'image_resize',

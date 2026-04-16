@@ -118,19 +118,18 @@ export class ValidationEngine {
         const nodeMap = this.buildNodeMap(nodes);
         const typeMap = this.buildNodeTypeMap(nodeTypes);
 
+        // Build adjacency list
         const adj = new Map<string, string[]>();
         for (const n of nodes) adj.set(n.id, []);
-        for (const e of edges) {
-            if (!adj.has(e.fromNodeId)) adj.set(e.fromNodeId, []);
-            adj.get(e.fromNodeId)!.push(e.toNodeId);
-        }
+        for (const e of edges) adj.get(e.fromNodeId)!.push(e.toNodeId);
 
+        // Find sources (nodes with no incoming edges)
         const indegree = new Map<string, number>();
         for (const n of nodes) indegree.set(n.id, 0);
         for (const e of edges) indegree.set(e.toNodeId, (indegree.get(e.toNodeId) ?? 0) + 1);
-        const sources = new Set<string>();
-        for (const [id, v] of indegree.entries()) if (v === 0) sources.add(id);
+        const sources = new Set([...indegree.entries()].filter(([_, v]) => v === 0).map(([id]) => id));
 
+        // Detect cycles using DFS
         const visited = new Set<string>();
         const onStack = new Set<string>();
         const stack: string[] = [];
@@ -140,78 +139,46 @@ export class ValidationEngine {
             visited.add(u);
             onStack.add(u);
             stack.push(u);
-            const neighbors = adj.get(u) ?? [];
-            for (const v of neighbors) {
+
+            for (const v of adj.get(u) ?? []) {
                 if (!visited.has(v)) {
                     dfs(v);
                 } else if (onStack.has(v)) {
-                    const idx = stack.lastIndexOf(v);
-                    const cyc = stack.slice(idx);
-                    cycles.push({ cycle: [...cyc, v], backEdgeFrom: u, backEdgeTo: v });
+                    const cycleStart = stack.lastIndexOf(v);
+                    cycles.push({
+                        cycle: stack.slice(cycleStart),
+                        backEdgeFrom: u,
+                        backEdgeTo: v
+                    });
                 }
             }
+
             stack.pop();
             onStack.delete(u);
         };
 
         for (const n of nodes) if (!visited.has(n.id)) dfs(n.id);
 
-        // Track which nodes/edges we've already recorded to avoid duplicates
-        const addedNodeIds = new Set<string>();
-        const addedEdgeKeys = new Set<string>();
+        // Validate cycles
+        const addedNodes = new Set<string>();
+        const addedEdges = new Set<string>();
 
-        for (const c of cycles) {
-            const cycleNodeIds = Array.from(new Set(c.cycle));
-            const includesSource = c.cycle.some(id => sources.has(id));
+        for (const cycle of cycles) {
+            const hasSource = cycle.cycle.some(id => sources.has(id));
+            const originNode = nodeMap.get(cycle.backEdgeFrom)!;
+            const targetNode = nodeMap.get(cycle.backEdgeTo)!;
+            const originType = typeMap.get(originNode.type);
 
-            if (includesSource) {
-                errors.push(`Invalid cycle detected involving nodes [${c.cycle.join(', ')}] — cycles cannot include pipeline start nodes.`);
-            }
+            const isAllowed = !hasSource && this.isAllowedCycle(originType, targetNode.type);
 
-            const origin = nodeMap.get(c.backEdgeFrom)!;
-            const target = nodeMap.get(c.backEdgeTo)!;
-            const originType = typeMap.get(origin.type);
-            const targetType = typeMap.get(target.type);
-
-            const originName = originType?.name ?? origin.type;
-            const targetName = targetType?.name ?? target.type;
-            const allowedTarget = originType?.allowedCycleTarget ?? undefined;
-
-            // const originIsHuman = /HUMAN(_|\s)?REVIEW/i.test(originName) || (/HUMAN/i.test(originName) && /REVIEW/i.test(originName));
-            // const targetIsTextCorrection = /TEXT(_|\s)?CORRECTION/i.test(targetName) || (/CORRECT/i.test(targetName) && /TEXT/i.test(targetName));
-            const originIsHuman = originName === 'human_review';
-            const targetIsTextCorrection = targetName === 'text_correction';
-
-            const allowed = (allowedTarget ? allowedTarget === targetName : (originIsHuman && targetIsTextCorrection));
-
-            if (!allowed || includesSource) {
-                if (!allowed) {
-                    errors.push(`Invalid cycle closed by edge ${c.backEdgeFrom} -> ${c.backEdgeTo}. Only a Human Review node may create a cycle and it may only loop back to a Text Correction node.`);
+            if (!isAllowed) {
+                if (hasSource) {
+                    errors.push(`Invalid cycle detected involving nodes [${cycle.cycle.join(', ')}] — cycles cannot include pipeline start nodes.`);
+                } else {
+                    errors.push(`Invalid cycle closed by edge ${cycle.backEdgeFrom} -> ${cycle.backEdgeTo}. Only a Human Review node may create a cycle and it may only loop back to a Text Correction node.`);
                 }
 
-                // Add all nodes in the cycle to errorNodes (avoid duplicates)
-                for (const id of cycleNodeIds) {
-                    const node = nodeMap.get(id);
-                    if (node && !addedNodeIds.has(id)) {
-                        errorNodes.push(node);
-                        addedNodeIds.add(id);
-                    }
-                }
-
-                // Add all edges that form the cycle to errorEdges (avoid duplicates)
-                // c.cycle typically has the start node repeated at the end, so iterate pairs
-                for (let i = 0; i < c.cycle.length - 1; i++) {
-                    const fromId = c.cycle[i];
-                    const toId = c.cycle[i + 1];
-                    const edge = edges.find(e => e.fromNodeId === fromId && e.toNodeId === toId);
-                    if (edge) {
-                        const key = edge.id ?? `${edge.fromNodeId}->${edge.toNodeId}`;
-                        if (!addedEdgeKeys.has(key)) {
-                            errorEdges.push(edge);
-                            addedEdgeKeys.add(key);
-                        }
-                    }
-                }
+                this.addCycleToResults(cycle, nodeMap, edges, addedNodes, addedEdges, errorNodes, errorEdges);
             }
         }
 
@@ -249,6 +216,50 @@ export class ValidationEngine {
             }
         }
         return map;
+    }
+
+    private isAllowedCycle(originType: NodeType | undefined, targetTypeName: string): boolean {
+        if (!originType) return false;
+
+        // Check explicit allowed target
+        if (originType.allowedCycleTarget === targetTypeName) return true;
+
+        return false
+    }
+
+    private addCycleToResults(
+        cycle: { cycle: string[]; backEdgeFrom: string; backEdgeTo: string },
+        nodeMap: Map<string, Node>,
+        edges: Edge[],
+        addedNodes: Set<string>,
+        addedEdges: Set<string>,
+        errorNodes: Node[],
+        errorEdges: Edge[]
+    ): void {
+        // Add nodes
+        for (const id of cycle.cycle) {
+            if (!addedNodes.has(id)) {
+                const node = nodeMap.get(id);
+                if (node) {
+                    errorNodes.push(node);
+                    addedNodes.add(id);
+                }
+            }
+        }
+
+        // Add edges (from consecutive pairs in cycle)
+        for (let i = 0; i < cycle.cycle.length - 1; i++) {
+            const fromId = cycle.cycle[i];
+            const toId = cycle.cycle[i + 1];
+            const edge = edges.find(e => e.fromNodeId === fromId && e.toNodeId === toId);
+            if (edge) {
+                const key = edge.id ?? `${fromId}->${toId}`;
+                if (!addedEdges.has(key)) {
+                    errorEdges.push(edge);
+                    addedEdges.add(key);
+                }
+            }
+        }
     }
 }
 
